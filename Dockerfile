@@ -49,9 +49,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-    --add-dynamic-module=ngx_devel_kit-0.3.0 \
+    --add-dynamic-module=ngx_devel_kit-0.3.1 \
     --add-dynamic-module=set-misc-nginx-module-0.32 \
-    --add-dynamic-module=ngx_http_geoip2_module-3.2 \
+    --add-dynamic-module=ngx_http_geoip2_module-3.3 \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
@@ -69,19 +69,22 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		curl \
 		curl-dev \
 		gnupg \
-    git \
+    	git \
 		libxslt-dev \
+		libc6-compat \
 		gd-dev \
 		geoip-dev \
-  	&& wget https://github.com/maxmind/libmaxminddb/releases/download/1.3.2/libmaxminddb-1.3.2.tar.gz \
-	&& tar -zxC . -f libmaxminddb-1.3.2.tar.gz \
-	&& cd libmaxminddb-1.3.2 \
+  	&& wget https://github.com/maxmind/libmaxminddb/releases/download/1.5.2/libmaxminddb-1.5.2.tar.gz \
+	&& tar -zxC . -f libmaxminddb-1.5.2.tar.gz \
+	&& cd libmaxminddb-1.5.2 \
 	&& ./configure && make && make install  \
-	&& cd .. && rm libmaxminddb-1.3.2.tar.gz && rm -rf libmaxminddb-1.3.2 \
+	&& cd .. && rm libmaxminddb-1.5.2.tar.gz && rm -rf libmaxminddb-1.5.2 \
 	&& cd / \
-    && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate \
-    && ./bootstrap && ./configure && make && make install \
-	&& cd .. && rm -rf geoipupdate \
+    && wget https://github.com/maxmind/geoipupdate/releases/download/v4.6.0/geoipupdate_4.6.0_linux_amd64.tar.gz \
+	&& tar -zxC . -f geoipupdate_4.6.0_linux_amd64.tar.gz \
+	&& cp geoipupdate_4.6.0_linux_amd64/geoipupdate /usr/local/bin \
+	&& cd .. && rm -rf geoipupdate_4.6.0_linux_amd64.tar.gz && rm -rf geoipupdate_4.6.0_linux_amd64 \
+	&& mkdir /usr/local/share/GeoIP \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& export GNUPGHOME="$(mktemp -d)" \
@@ -104,14 +107,14 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm nginx.tar.gz \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
     && wget https://github.com/openresty/set-misc-nginx-module/archive/v0.32.tar.gz \
-    && wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.0.tar.gz \
-    && wget https://github.com/leev/ngx_http_geoip2_module/archive/3.2.tar.gz \
+    && wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz \
+    && wget https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz \
     && tar -xzvf v0.32.tar.gz \
-    && tar -xzvf v0.3.0.tar.gz \
-    && tar -xzvf 3.2.tar.gz \
+    && tar -xzvf v0.3.1.tar.gz \
+    && tar -xzvf 3.3.tar.gz \
     && rm v0.32.tar.gz \
-    && rm v0.3.0.tar.gz \
-    && rm 3.2.tar.gz \
+    && rm v0.3.1.tar.gz \
+    && rm 3.3.tar.gz \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& mv objs/nginx objs/nginx-debug \
@@ -167,5 +170,3 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 EXPOSE 80
 
 STOPSIGNAL SIGTERM
-
-CMD ["nginx", "-g", "daemon off;"]
