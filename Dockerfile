@@ -1,8 +1,8 @@
-FROM alpine:3.7
+FROM alpine:3.13
 
 LABEL maintainer="Fanatical Dev Team <dev@fanatical.com>"
 
-ENV NGINX_VERSION 1.15.8
+ENV NGINX_VERSION 1.19.7
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
